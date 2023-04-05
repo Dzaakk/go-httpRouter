@@ -11,13 +11,15 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestRouter(t *testing.T) {
+func TestParams(t *testing.T) {
 	router := httprouter.New()
-	router.GET("/", func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-		fmt.Fprint(w, "Hello World")
+	router.GET("/products/:id", func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+		id := p.ByName("id")
+		text := "Product " + id
+		fmt.Fprint(w, text)
 	})
 
-	request := httptest.NewRequest("GET", "http://localhost:3000/", nil)
+	request := httptest.NewRequest("GET", "http://localhost:3000/products/1", nil)
 	recorder := httptest.NewRecorder()
 
 	router.ServeHTTP(recorder, request)
@@ -25,5 +27,5 @@ func TestRouter(t *testing.T) {
 	response := recorder.Result()
 	body, _ := io.ReadAll(response.Body)
 
-	assert.Equal(t, "Hello World", string(body))
+	assert.Equal(t, "Product 1", string(body))
 }
